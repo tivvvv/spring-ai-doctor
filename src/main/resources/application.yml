@@ -1,0 +1,17 @@
+server:
+  port: 7070
+
+spring:
+  application:
+    name: spring-ai-doctor
+  profiles:
+    active: dev
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        model: deepseek-r1:8b
+
+logging:
+  level:
+    root: info
