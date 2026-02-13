@@ -8,4 +8,6 @@ public interface SSEService {
 
     void sendMessage(String sessionId, String message);
 
+    void sendMessageAll(String message);
+
 }

@@ -36,7 +36,22 @@ public class SSEServiceImpl implements SSEService {
             return;
         }
         SseEmitter sseEmitter = sseClients.get(sessionId);
-        SseEmitter.SseEventBuilder msg = SseEmitter.event().id(sessionId)
+        doSendMessage(sessionId, sseEmitter, message);
+    }
+
+    @Override
+    public void sendMessageAll(String message) {
+        if (CollectionUtils.isEmpty(sseClients)) {
+            return;
+        }
+        sseClients.forEach((sessionId, sseEmitter) -> {
+            doSendMessage(sessionId, sseEmitter, message);
+        });
+    }
+
+    private void doSendMessage(String sessionId, SseEmitter sseEmitter, String message) {
+        SseEmitter.SseEventBuilder msg = SseEmitter.event()
+                .id(sessionId)
                 .data(message);
         try {
             sseEmitter.send(msg);
