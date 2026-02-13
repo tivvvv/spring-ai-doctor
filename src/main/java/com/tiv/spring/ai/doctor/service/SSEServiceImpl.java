@@ -31,6 +31,16 @@ public class SSEServiceImpl implements SSEService {
     }
 
     @Override
+    public void disconnect(String sessionId) {
+        if (CollectionUtils.isEmpty(sseClients) || !sseClients.containsKey(sessionId)) {
+            return;
+        }
+        SseEmitter sseEmitter = sseClients.get(sessionId);
+        sseEmitter.complete();
+        log.info("断开SSE连接成功,会话id:{}", sessionId);
+    }
+
+    @Override
     public void sendMessage(String sessionId, String message) {
         if (CollectionUtils.isEmpty(sseClients) || !sseClients.containsKey(sessionId)) {
             return;

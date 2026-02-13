@@ -6,6 +6,8 @@ public interface SSEService {
 
     SseEmitter connect(String sessionId);
 
+    void disconnect(String sessionId);
+
     void sendMessage(String sessionId, String message);
 
     void sendMessageAll(String message);

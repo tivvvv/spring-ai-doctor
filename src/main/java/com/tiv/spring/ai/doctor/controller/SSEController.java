@@ -23,6 +23,11 @@ public class SSEController {
         return sseService.connect(sessionId);
     }
 
+    @PostMapping(path = "/disconnect")
+    public void disconnect(@RequestBody String sessionId) {
+        sseService.disconnect(sessionId);
+    }
+
     @PostMapping("/sendMessage")
     public void sendMessage(@RequestBody @Validated SSEMessage sseMessage) {
         sseService.sendMessage(sseMessage.getSessionId(), sseMessage.getMessage());
