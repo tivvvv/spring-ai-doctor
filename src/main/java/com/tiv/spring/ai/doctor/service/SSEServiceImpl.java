@@ -9,13 +9,16 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Slf4j
 @Service
 public class SSEServiceImpl implements SSEService {
 
-    private Map<String, SseEmitter> sseClients = new ConcurrentHashMap<>(10 * 60);
+    private final Map<String, SseEmitter> sseClients = new ConcurrentHashMap<>(10 * 60);
+
+    private final AtomicInteger onlineCounts = new AtomicInteger(0);
 
     @Override
     public SseEmitter connect(String sessionId) {
@@ -27,6 +30,7 @@ public class SSEServiceImpl implements SSEService {
         sseEmitter.onError(errorCallback(sessionId));
 
         sseClients.put(sessionId, sseEmitter);
+        onlineCounts.getAndIncrement();
         log.info("创建SSE连接成功,会话id:{}", sessionId);
         return sseEmitter;
     }
@@ -65,6 +69,11 @@ public class SSEServiceImpl implements SSEService {
         });
     }
 
+    @Override
+    public int getOnlineCounts() {
+        return onlineCounts.intValue();
+    }
+
     private void doSendMessage(String sessionId, SseEmitter sseEmitter, SSEMessageTypeEnum messageTypeEnum, String message) {
         SseEmitter.SseEventBuilder msg = SseEmitter.event()
                 .id(sessionId)
@@ -74,7 +83,7 @@ public class SSEServiceImpl implements SSEService {
             sseEmitter.send(msg);
         } catch (IOException e) {
             log.error("SSE发送消息失败,会话id:{}", sessionId);
-            sseClients.remove(sessionId);
+            removeClient(sessionId);
             throw new RuntimeException(e);
         }
     }
@@ -82,22 +91,28 @@ public class SSEServiceImpl implements SSEService {
     private Runnable completionCallback(String sessionId) {
         return () -> {
             log.info("SSE连接已关闭,会话id:{}", sessionId);
-            sseClients.remove(sessionId);
+            removeClient(sessionId);
         };
     }
 
     private Runnable timeoutCallback(String sessionId) {
         return () -> {
             log.info("SSE连接已超时,会话id:{}", sessionId);
-            sseClients.remove(sessionId);
+            removeClient(sessionId);
         };
     }
 
     private Consumer<Throwable> errorCallback(String sessionId) {
         return Throwable -> {
             log.info("SSE连接发生错误,会话id:{}", sessionId);
-            sseClients.remove(sessionId);
+            removeClient(sessionId);
         };
+    }
+
+    private void removeClient(String sessionId) {
+        sseClients.remove(sessionId);
+        onlineCounts.getAndDecrement();
+        log.info("SSE连接移除成功,会话id:{}", sessionId);
     }
 
 }

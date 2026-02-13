@@ -15,4 +15,6 @@ public interface SSEService {
 
     void sendMessageAll(String message);
 
+    int getOnlineCounts();
+
 }
