@@ -1,5 +1,6 @@
 package com.tiv.spring.ai.doctor.service;
 
+import com.tiv.spring.ai.doctor.enums.SSEMessageTypeEnum;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 public interface SSEService {
@@ -8,7 +9,9 @@ public interface SSEService {
 
     void disconnect(String sessionId);
 
-    void sendMessage(String sessionId, String message);
+    void sendMessage(String sessionId, String message, SSEMessageTypeEnum messageTypeEnum);
+
+    void sendMessageAdd(String sessionId, String message);
 
     void sendMessageAll(String message);
 

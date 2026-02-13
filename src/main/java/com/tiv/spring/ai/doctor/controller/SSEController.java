@@ -1,5 +1,6 @@
 package com.tiv.spring.ai.doctor.controller;
 
+import com.tiv.spring.ai.doctor.enums.SSEMessageTypeEnum;
 import com.tiv.spring.ai.doctor.model.SSEMessage;
 import com.tiv.spring.ai.doctor.service.SSEService;
 import jakarta.annotation.Resource;
@@ -30,7 +31,12 @@ public class SSEController {
 
     @PostMapping("/sendMessage")
     public void sendMessage(@RequestBody @Validated SSEMessage sseMessage) {
-        sseService.sendMessage(sseMessage.getSessionId(), sseMessage.getMessage());
+        sseService.sendMessage(sseMessage.getSessionId(), sseMessage.getMessage(), SSEMessageTypeEnum.MESSAGE);
+    }
+
+    @PostMapping("/sendMessageAdd")
+    public void sendMessageAdd(@RequestBody @Validated SSEMessage sseMessage) {
+        sseService.sendMessageAdd(sseMessage.getSessionId(), sseMessage.getMessage());
     }
 
     @PostMapping("/sendMessageAll")

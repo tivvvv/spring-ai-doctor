@@ -1,5 +1,6 @@
 package com.tiv.spring.ai.doctor.service;
 
+import com.tiv.spring.ai.doctor.enums.SSEMessageTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -41,12 +42,17 @@ public class SSEServiceImpl implements SSEService {
     }
 
     @Override
-    public void sendMessage(String sessionId, String message) {
+    public void sendMessage(String sessionId, String message, SSEMessageTypeEnum messageTypeEnum) {
         if (CollectionUtils.isEmpty(sseClients) || !sseClients.containsKey(sessionId)) {
             return;
         }
         SseEmitter sseEmitter = sseClients.get(sessionId);
-        doSendMessage(sessionId, sseEmitter, message);
+        doSendMessage(sessionId, sseEmitter, messageTypeEnum, message);
+    }
+
+    @Override
+    public void sendMessageAdd(String sessionId, String message) {
+        sendMessage(sessionId, message, SSEMessageTypeEnum.ADD);
     }
 
     @Override
@@ -55,13 +61,14 @@ public class SSEServiceImpl implements SSEService {
             return;
         }
         sseClients.forEach((sessionId, sseEmitter) -> {
-            doSendMessage(sessionId, sseEmitter, message);
+            doSendMessage(sessionId, sseEmitter, SSEMessageTypeEnum.MESSAGE, message);
         });
     }
 
-    private void doSendMessage(String sessionId, SseEmitter sseEmitter, String message) {
+    private void doSendMessage(String sessionId, SseEmitter sseEmitter, SSEMessageTypeEnum messageTypeEnum, String message) {
         SseEmitter.SseEventBuilder msg = SseEmitter.event()
                 .id(sessionId)
+                .name(messageTypeEnum.getType())
                 .data(message);
         try {
             sseEmitter.send(msg);
