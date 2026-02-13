@@ -17,23 +17,23 @@ public class SSEController {
     private SSEService sseService;
 
     @PostMapping(path = "/connect", produces = {MediaType.TEXT_EVENT_STREAM_VALUE})
-    public SseEmitter connect(@RequestBody String sessionId) {
-        return sseService.connect(sessionId);
+    public SseEmitter connect(@RequestBody String userName) {
+        return sseService.connect(userName);
     }
 
     @PostMapping(path = "/disconnect")
-    public void disconnect(@RequestBody String sessionId) {
-        sseService.disconnect(sessionId);
+    public void disconnect(@RequestBody String userName) {
+        sseService.disconnect(userName);
     }
 
     @PostMapping("/sendMessage")
     public void sendMessage(@RequestBody @Validated SSEMessage sseMessage) {
-        sseService.sendMessage(sseMessage.getSessionId(), sseMessage.getMessage(), SSEMessageTypeEnum.MESSAGE);
+        sseService.sendMessage(sseMessage.getUserName(), sseMessage.getMessage(), SSEMessageTypeEnum.MESSAGE);
     }
 
     @PostMapping("/sendMessageAdd")
     public void sendMessageAdd(@RequestBody @Validated SSEMessage sseMessage) {
-        sseService.sendMessageAdd(sseMessage.getSessionId(), sseMessage.getMessage());
+        sseService.sendMessageAdd(sseMessage.getUserName(), sseMessage.getMessage());
     }
 
     @PostMapping("/sendMessageAll")

@@ -7,7 +7,7 @@ import lombok.Data;
 public class SSEMessage {
 
     @NotBlank
-    private String sessionId;
+    private String userName;
 
     @NotBlank
     private String message;
