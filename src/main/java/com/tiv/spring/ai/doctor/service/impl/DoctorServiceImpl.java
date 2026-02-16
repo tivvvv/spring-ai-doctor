@@ -1,6 +1,8 @@
 package com.tiv.spring.ai.doctor.service.impl;
 
+import com.tiv.spring.ai.doctor.enums.ChatTypeEnum;
 import com.tiv.spring.ai.doctor.model.SSEMessage;
+import com.tiv.spring.ai.doctor.service.ChatRecordService;
 import com.tiv.spring.ai.doctor.service.DoctorService;
 import com.tiv.spring.ai.doctor.service.SSEService;
 import jakarta.annotation.Resource;
@@ -24,16 +26,25 @@ public class DoctorServiceImpl implements DoctorService {
     @Resource
     private SSEService sseService;
 
+    @Resource
+    private ChatRecordService chatRecordService;
+
     @Override
     public void chat(SSEMessage sseMessage) {
-        Prompt prompt = new Prompt(new UserMessage(sseMessage.getMessage()));
+        String userName = sseMessage.getUserName();
+        String message = sseMessage.getMessage();
+        // 保存用户消息
+        chatRecordService.saveChatRecord(userName, message, ChatTypeEnum.USER);
+        Prompt prompt = new Prompt(new UserMessage(message));
         Flux<ChatResponse> responseFlux = ollamaChatClient.stream(prompt);
         String result = responseFlux.toStream().map(response -> {
             String content = response.getResult().getOutput().getContent();
-            sseService.sendMessageAdd(sseMessage.getUserName(), content);
+            sseService.sendMessageAdd(userName, content);
             return content;
         }).collect(Collectors.joining());
-        sseService.sendMessageDone(sseMessage.getUserName());
+        // 保存AI消息
+        chatRecordService.saveChatRecord(userName, result, ChatTypeEnum.AI);
+        sseService.sendMessageDone(userName);
     }
 
 }
