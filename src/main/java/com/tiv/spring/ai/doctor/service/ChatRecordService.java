@@ -4,8 +4,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.tiv.spring.ai.doctor.enums.ChatTypeEnum;
 import com.tiv.spring.ai.doctor.model.ChatRecord;
 
+import java.util.List;
+
 public interface ChatRecordService extends IService<ChatRecord> {
 
     void saveChatRecord(String userName, String message, ChatTypeEnum chatTypeEnum);
+
+    List<ChatRecord> getRecords(String userName);
 
 }
