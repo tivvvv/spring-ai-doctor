@@ -1,10 +1,12 @@
 package com.tiv.spring.ai.doctor.controller;
 
+import com.tiv.spring.ai.doctor.common.BusinessResponse;
 import com.tiv.spring.ai.doctor.model.ChatRecord;
 import com.tiv.spring.ai.doctor.model.SSEMessage;
 import com.tiv.spring.ai.doctor.service.ChatRecordService;
 import com.tiv.spring.ai.doctor.service.DoctorService;
 import com.tiv.spring.ai.doctor.service.SSEService;
+import com.tiv.spring.ai.doctor.utils.ResultUtils;
 import jakarta.annotation.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -35,8 +37,8 @@ public class DoctorController {
      * @return
      */
     @PostMapping(path = "/connect", produces = {MediaType.TEXT_EVENT_STREAM_VALUE})
-    public SseEmitter connect(@RequestBody String userName) {
-        return sseService.connect(userName);
+    public BusinessResponse<SseEmitter> connect(@RequestBody String userName) {
+        return ResultUtils.success(sseService.connect(userName));
     }
 
     /**
@@ -45,8 +47,9 @@ public class DoctorController {
      * @param sseMessage
      */
     @PostMapping("/chat")
-    public void chat(@RequestBody SSEMessage sseMessage) {
+    public BusinessResponse<?> chat(@RequestBody SSEMessage sseMessage) {
         doctorService.chat(sseMessage);
+        return ResultUtils.success();
     }
 
     /**
@@ -56,8 +59,8 @@ public class DoctorController {
      * @return
      */
     @GetMapping("/records")
-    public List<ChatRecord> getRecords(@RequestBody String userName) {
-        return chatRecordService.getRecords(userName);
+    public BusinessResponse<List<ChatRecord>> getRecords(@RequestBody String userName) {
+        return ResultUtils.success(chatRecordService.getRecords(userName));
     }
 
     /**
@@ -66,8 +69,8 @@ public class DoctorController {
      * @return
      */
     @GetMapping("/onlineCounts")
-    public Integer getOnlineCounts() {
-        return sseService.getOnlineCounts();
+    public BusinessResponse<Integer> getOnlineCounts() {
+        return ResultUtils.success(sseService.getOnlineCounts());
     }
 
 }
