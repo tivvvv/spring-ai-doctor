@@ -32,7 +32,8 @@ public class ChatRecordServiceImpl extends ServiceImpl<ChatRecordMapper, ChatRec
     @Override
     public List<ChatRecord> getRecords(String userName) {
         QueryWrapper<ChatRecord> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("user_name", userName);
+        queryWrapper.eq("user_name", userName)
+                .orderByDesc("create_time");
         return chatRecordMapper.selectList(queryWrapper);
     }
 
